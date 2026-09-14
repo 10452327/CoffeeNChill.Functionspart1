@@ -132,5 +132,3 @@ CoffeeNChill demonstrates how cloud development technologies can be combined to 
 
 * **[St10454156]** – [Fezokuhle Njabulo Cele]
 * **[St10452327]** – [Siphesihle Siphamandla Bandile Nkabinde]
-* **[Student Name]** – [Student Number]
-* **[Student Name]** – [Student Number]
