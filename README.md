@@ -1,8 +1,8 @@
-# CoffeeNChill – Cloud Development 2B
+# CoffeeNChill – Cloud Development
 
 ## Project Overview
 
-CoffeeNChill is a cloud-based coffee shop management system developed as part of the CLDV6212 Cloud Development 2B module. The purpose of the project is to demonstrate the development of a cloud-ready application that provides RESTful API functionality for managing coffee shop menu items and staff documents. The application is developed using C# with .NET 10 and Azure Functions v4 using the .NET isolated worker model. Azure Storage services are used to provide persistent storage for the application's data, while Azurite is used as a local emulator during development and testing. The project also demonstrates containerisation using Docker, API testing using Postman, and version control using Git and GitHub.
+CoffeeNChill is a cloud-based coffee shop management system developed as part of the CLDV6212 Cloud Development module. The purpose of the project is to demonstrate the development of a cloud-ready application that provides RESTful API functionality for managing coffee shop menu items and staff documents. The application is developed using C# with .NET 10 and Azure Functions v4 using the .NET isolated worker model. Azure Storage services are used to provide persistent storage for the application's data, while Azurite is used as a local emulator during development and testing. The project also demonstrates containerisation using Docker, API testing using Postman, and version control using Git and GitHub.
 
 ## Technologies Used
 
@@ -117,7 +117,7 @@ CoffeeNChill demonstrates how cloud development technologies can be combined to 
 
 ## Academic Information
 
-**Module:** CLDV6212 – Cloud Development 2B
+**Module:** CLDV6212 – Cloud Development
 **Project:** CoffeeNChill
 **Part:** Part 1
 **Programming Language:** C#
