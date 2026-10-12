@@ -1,19 +1,21 @@
-using Azure.Data.Tables;
-using Azure.Storage.Blobs;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureServices(services =>
+namespace CoffeeNChill.Functions
+{
+    public class Program
     {
-        string storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
-            ?? "UseDevelopmentStorage=true";
+        public static void Main(string[] args)
+        {
+            var host = new HostBuilder()
+                .ConfigureFunctionsWorkerDefaults()
+                .ConfigureServices(services =>
+                {
+                   
+                })
+                .Build();
 
-        services.AddSingleton(new TableServiceClient(storageConnectionString));
-        services.AddSingleton(new BlobServiceClient(storageConnectionString));
-    })
-    .Build();
-
-host.Run();
+            host.Run();
+        }
+    }
+}

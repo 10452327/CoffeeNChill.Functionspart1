@@ -1,7 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+
 COPY ["CoffeeNChill.Functions.csproj", "./"]
 RUN dotnet restore
+
 COPY . .
 RUN dotnet build -c Release -o /app/build
 

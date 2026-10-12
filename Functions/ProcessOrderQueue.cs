@@ -1,59 +1,51 @@
-﻿using System;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.Functions.Worker.Extensions.Tables;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Azure.Data.Tables;
-using CoffeeNChill.Functions.Models;
 
 namespace CoffeeNChill.Functions
 {
-    public static class ProcessOrderQueue
+    public class ProcessOrderQueue
     {
-        [FunctionName("ProcessOrderQueue")]
-        public static async Task Run(
-            [QueueTrigger("order-processing-queue", Connection = "AzureWebJobsStorage")] string myQueueItem,
-            ILogger log)
+        private readonly ILogger<ProcessOrderQueue> _logger;
+
+        public ProcessOrderQueue(ILoggerFactory loggerFactory)
         {
-            if (string.IsNullOrWhiteSpace(myQueueItem)) return;
-
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            OrderDto order = JsonSerializer.Deserialize<OrderDto>(myQueueItem, options);
-
-            string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "UseDevelopmentStorage=true;";
-            TableServiceClient tableServiceClient = new TableServiceClient(connectionString);
-            TableClient tableClient = tableServiceClient.GetTableClient("Orders");
-            await tableClient.CreateIfNotExistsAsync();
-
-            string partitionKey = DateTime.UtcNow.ToString("yyyy-MM-dd");
-            string rowKey = order.OrderId;
-
-            // Initial State: Received
-            var orderEntity = new TableEntity(partitionKey, rowKey)
-            {
-                { "CustomerName", order.CustomerName },
-                { "TotalPrice", (double)order.TotalPrice },
-                { "Status", "Received" },
-                { "OrderTimestamp", order.OrderTimestamp ?? DateTime.UtcNow.ToString("o") }
-            };
-            await tableClient.UpsertEntityAsync(orderEntity);
-
-            // Transition to Preparing
-            await Task.Delay(2000);
-            orderEntity["Status"] = "Preparing";
-            await tableClient.UpdateEntityAsync(orderEntity, orderEntity.ETag, TableUpdateMode.Replace);
-
-            // Transition to Ready
-            await Task.Delay(2000);
-            orderEntity["Status"] = "Ready";
-            await tableClient.UpdateEntityAsync(orderEntity, orderEntity.ETag, TableUpdateMode.Replace);
-
-            // Transition to Collected
-            await Task.Delay(2000);
-            orderEntity["Status"] = "Collected";
-            await tableClient.UpdateEntityAsync(orderEntity, orderEntity.ETag, TableUpdateMode.Replace);
-
-            log.LogInformation($"Order {order.OrderId} completed full lifecycle successfully.");
+            _logger = loggerFactory.CreateLogger<ProcessOrderQueue>();
         }
+
+        [Function(nameof(ProcessOrderQueue))]
+        [TableOutput("Orders", Connection = "AzureWebJobsStorage")]
+        public OrderEntity Run(
+            [QueueTrigger("order-processing-queue", Connection = "AzureWebJobsStorage")] OrderPayload message)
+        {
+            _logger.LogInformation($"Processing order: {message.OrderId} for {message.CustomerName}");
+
+            // Map incoming queue payload to Table Storage Entity
+            return new OrderEntity
+            {
+                PartitionKey = "CoffeeOrders",
+                RowKey = message.OrderId,
+                CustomerName = message.CustomerName,
+                TotalPrice = message.TotalPrice,
+                Status = "Processed"
+            };
+        }
+    }
+
+    // Helper classes matching your payload & table schema
+    public class OrderPayload
+    {
+        public string OrderId { get; set; }
+        public string CustomerName { get; set; }
+        public decimal TotalPrice { get; set; }
+    }
+
+    public class OrderEntity
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string CustomerName { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string Status { get; set; }
     }
 }
